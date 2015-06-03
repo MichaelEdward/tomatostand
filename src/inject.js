@@ -8,10 +8,12 @@ chrome.runtime.sendMessage({}, function(response) {
 
       // find the server name for your DVR
       var serverName = ""
-      var tags = document.getElementsByTagName('script'), i;
-      regex=/.*ServerName.?=.?'?([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+).*\'/;
+      var tags = document.getElementsByTagName('script'),
+        i;
+      regex = /.*ServerName.?=.?'?([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+).*\'/;
       for (i in tags) {
-        match = regex.exec(tags[i].innerText); if(match) {
+        match = regex.exec(tags[i].innerText);
+        if (match) {
           serverName = match[1];
         }
       }
@@ -19,22 +21,22 @@ chrome.runtime.sendMessage({}, function(response) {
         alert("Error: 'serverName' not found in page. Tomato Stand extension needs to be updated by the developer");
         return;
       }
-    
+
       // inject setting values
       var s = document.createElement('script');
-      s.text = "SN=\"" + serverName + "\"\n" + 
-        "days=" + settings.days + "\n" + 
+      s.text = "SN=\"" + serverName + "\"\n" +
+        "days=" + settings.days + "\n" +
         "channellist=[" + settings.channels + "]\n";
-      (document.head||document.documentElement).appendChild(s);
-      
+      (document.head || document.documentElement).appendChild(s);
+
       // inject our code to run in same context
       s = document.createElement('script');
       s.src = chrome.extension.getURL('src/script.js');
       s.onload = function() {
         this.parentNode.removeChild(this);
       };
-      (document.head||document.documentElement).appendChild(s);
-      
+      (document.head || document.documentElement).appendChild(s);
+
       // if the page requests a RT search, pass the message to the background
       window.addEventListener('message', function(event) {
         if (event.source != window)
@@ -42,7 +44,12 @@ chrome.runtime.sendMessage({}, function(response) {
 
         if (event.data.type && (event.data.type == "FROM_TS_PAGE")) {
           // pass window messages up to the background page
-          chrome.runtime.sendMessage({type:"FROM_TS_PAGE", movie:event.data.movie, year:event.data.year, cast:event.data.cast});
+          chrome.runtime.sendMessage({
+            type: "FROM_TS_PAGE",
+            movie: event.data.movie,
+            year: event.data.year,
+            cast: event.data.cast
+          });
         }
       });
     }
@@ -51,6 +58,12 @@ chrome.runtime.sendMessage({}, function(response) {
 
 // send RT results from the background page to the script
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-    // pass chrome message to the page
-    window.postMessage({ type: message.type, score: message.score, posterURI: message.posterURI, isAudience: message.isAudience, url: message.url }, '*' );
+  // pass chrome message to the page
+  window.postMessage({
+    type: message.type,
+    score: message.score,
+    posterURI: message.posterURI,
+    isAudience: message.isAudience,
+    url: message.url
+  }, '*');
 });
