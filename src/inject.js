@@ -10,9 +10,9 @@ chrome.runtime.sendMessage({}, function(response) {
       var serverName = ""
       var tags = document.getElementsByTagName('script'),
         i;
-      regex = /.*ServerName.?=.?'?([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+).*\'/;
-      for (i in tags) {
-        match = regex.exec(tags[i].innerText);
+      var regex = /.*ServerName.?=.?'?([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+).*\'/;
+      for (var i in tags) {
+        var match = regex.exec(tags[i].innerText);
         if (match) {
           serverName = match[1];
         }

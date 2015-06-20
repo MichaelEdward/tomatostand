@@ -1,7 +1,7 @@
 {
   "name": "Tomato Stand",
   "short_name": "TomatoStand",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "manifest_version": 2,
   "description": "Show Verizon's TV Guide sorted by Rotten Tomato score and schedule your DVR recordings with one-click.",
   "homepage_url": "http://github.com/rhollister",

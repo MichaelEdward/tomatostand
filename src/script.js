@@ -27,7 +27,7 @@ $("#fetchListing").click(function() {
   jQuery("body").html("<br><center><h2>Fetching channel listings... <span id=progress>0%</span></h2><div id=status></div><br>(To prevent hammering Verizon's servers, <br>this could take several minutes)</center>");
   progressInc = Math.floor((1 / channellist.length) * 100);
 
-  stbin = $("div.menuIn:contains('Living Room')").attr("value")
+  stbin = $("div.menuIn:contains('Living Room')").attr("value");
   $.ajax({
     url: 'https://www.verizon.com/fiostv/myservices/Members/Handlers/SchedulesHandler.ashx',
     type: 'POST',
@@ -59,15 +59,15 @@ var Recording = function(name, channel, start, duration, newRecording) {
 
 // format times for showing schedules
 function formatTime(date) {
-  dateString = date + "";
-  meridian = "am";
+  var dateString = date + "";
+  var meridian = "am";
   // "Thu Mar 19 2015 19:20:37 GMT-0400 (Eastern Daylight Time)"
-  regex = /(...) ... ([0-9]{2}) [0-9]{4} ([0-9]{2}):([0-9]{2}).*/;
-  match = regex.exec(dateString);
+  var regex = /(...) ... ([0-9]{2}) [0-9]{4} ([0-9]{2}):([0-9]{2}).*/;
+  var match = regex.exec(dateString);
   if (!match || match.length < 4) {
     return dateString;
   }
-  hour = match[3] - 0
+  var hour = match[3] - 0;
   if (hour >= 12) {
     meridian = "pm";
   }
@@ -82,25 +82,25 @@ function formatTime(date) {
 }
 
 function doesDVROverlap(start, duration) {
-  end = new Date(start.getTime() + duration * 60000);
-  overlapStr = "";
-  overlap = []
-  for (i in dvr) {
+  var end = new Date(start.getTime() + duration * 60000);
+  var overlapStr = "";
+  var overlap = [];
+  for (var i in dvr) {
     // if both start and end are outside of the dvr range, then it doesn't overlap
     if (!(start < dvr[i].start && end < dvr[i].start) && !(start > dvr[i].end && end > dvr[i].end)) {
       if (overlapStr.length == 0) {
-        overlapStr = "Conflicts with:<br/>"
+        overlapStr = "Conflicts with:<br/>";
       } else {
-        overlapStr += "<br/>"
+        overlapStr += "<br/>";
       }
       overlapStr += formatTime(dvr[i].start) + ": " + dvr[i].channel + " " + dvr[i].name;
-      overlap.push(dvr[i])
+      overlap.push(dvr[i]);
     }
   }
   // since two previously dvr'd movies could overlap this movie but not overlap each other, 
   //   check to see if at least one other dvr'd movie overlaps
-  for (i in overlap) {
-    for (j in overlap) {
+  for (var i in overlap) {
+    for (var j in overlap) {
       if (overlap[i].channel != overlap[j].channel && !(overlap[i].start < overlap[j].start && overlap[i].end < overlap[j].start) && !(overlap[i].start > overlap[j].end && overlap[i].end > overlap[j].end)) {
         return overlapStr;
       }
@@ -112,9 +112,9 @@ function doesDVROverlap(start, duration) {
 function parseDVRSchedule(data, textStatus, jqXHR) {
   // i'd rather not use eval, but it's how verizon's code handles their non-standard json responses
   //  and it's much easier than fixing their json
-  obj = eval('(' + data + ')');
+  var obj = eval('(' + data + ')');
   // remember each recording
-  for (i in obj.Schedules) {
+  for (var i in obj.Schedules) {
     dvr.push(new Recording(obj.Schedules[i].progName, obj.Schedules[i].channelposition, new Date(obj.Schedules[i].startime), obj.Schedules[i].duration, false));
   }
   // if we need to check the next page
@@ -142,14 +142,14 @@ function setMovieRTScoreListener(movie, movieid) {
   return function(event) {
     if (event.data.type && (event.data.type == "FROM_TS_EXTENSION" + movieid)) {
       if (event.data.score) {
-        movie.RTUserScore = event.data.score
+        movie.RTUserScore = event.data.score;
         if (event.data.isAudience) {
-          movie.isAudienceScore = event.data.isAudience
+          movie.isAudienceScore = event.data.isAudience;
         }
       }
 
       if (event.data.url) {
-        movie.url = event.data.url
+        movie.url = event.data.url;
       }
 
       if (!movie.PosterURI) {
@@ -169,12 +169,18 @@ function addExtraFields(movie) {
   return function(data, textStatus, jqXHR) {
     // i'd rather not use eval, but it's how verizon's code handles their non-standard json responses
     //  and it's much easier than fixing their json
-    obj = eval('(' + data + ')');
+    var obj = eval('(' + data + ')');
     movie.Description = obj.FiosObject[0][0].PrgmDescription[0].Description;
     movie.Rating = obj.FiosObject[0][0].PrgmDescription[0].Rating;
     movie.Genre = obj.FiosObject[0][0].PrgmDescription[0].Genre;
     movie.Year = obj.FiosObject[0][0].PrgmDescription[0].ProgramName.replace(/.*Year ?: /g, '').trim();
     movie.CastInfo = obj.FiosObject[0][0].PrgmDescription[0].CastInfo;
+    var seenTime = localStorage.getItem(movie.ProgramName + " " + movie.Year);
+    if (seenTime) {
+      movie.seenTime = seenTime;
+    } else {
+      movie.seenTime = null;
+    }
 
     movieid = encodeURI(movie.ProgramName + " " + movie.Year);
     movie.url = 'http://www.rottentomatoes.com/search/?search=' + movieid;
@@ -196,18 +202,18 @@ function addExtraFields(movie) {
 function getMovies(channel) {
   // fetch each day specified
   $("div#status").text("Fetching listing for " + days + " days of channel " + channel);
-  for (day = 0; day < days; day++) {
+  for (var day = 0; day < days; day++) {
     // get the showing listing for this day
     $.get("https://www.verizon.com/fiostv/myservices/TVListingHandler.aspx?Action=ChannelSchedule&ChannelId=" + channel + "&SN=" + SN + "&daycount=" + day, function(data) {
       // i'd rather not use eval, but it's how verizon's code handles their non-standard json responses
       //  and it's much easier than fixing their json
-      obj = eval("(" + data + ")");
+      var obj = eval("(" + data + ")");
 
       // for each showing
-      for (i in obj.Schedule) {
+      for (var i in obj.Schedule) {
         // ignore if it's not a movie
         if (obj.Schedule[i].ProgramCategoryId == "Movies") {
-          showing = {
+          var showing = {
             IntStartTime: obj.Schedule[i].IntStartTime,
             ChannelId: channel,
             StationId: obj.Schedule[i].StationId,
@@ -217,7 +223,7 @@ function getMovies(channel) {
           // only add showings in the future
           if (showing.startdate > new Date()) {
             // if movie has been loaded already, add the showing to its list
-            found = movies[obj.Schedule[i].ProgramName];
+            var found = movies[obj.Schedule[i].ProgramName];
             if (found) {
               found.showings.push(showing);
               // if this is the first time loading this movie, add it to the movie list
@@ -255,10 +261,11 @@ $(document).ajaxStop(function() {
   if (fetchMovies) {
     // if we finished grabbing all movies for one channel and there are still channels left, fetch the next one
     if (channellist.length) {
-      channel = channellist.pop();
+      var channel = channellist.pop();
       progress += parseInt(progressInc);
-      jQuery("#progress").text(progress + "%")
-        //console.log("Fetching channel " + channel + ". " + channellist.length + " left.");
+      jQuery("#progress").text(progress + "%");
+      document.title = progress + "% loaded";
+      //console.log("Fetching channel " + channel + ". " + channellist.length + " left.");
       getMovies(channel);
       return;
     }
@@ -269,15 +276,22 @@ $(document).ajaxStop(function() {
       var readyStateCheckInterval = setInterval(function() {
         if (outStandingRTCalls < 1) {
           clearInterval(readyStateCheckInterval);
+          document.title = "Tomato Stand";
 
           // sort movies by Rotten Tomato score
           sortedMovies = [];
-          for (i in movies) {
+          for (var i in movies) {
             sortedMovies.push(movies[i]);
           }
           sortedMovies.sort(function(a, b) {
-            aa = a.RTUserScore;
-            bb = b.RTUserScore;
+            var aa = a.RTUserScore;
+            var bb = b.RTUserScore;
+            if (a.seenTime) {
+              aa -= 1000;
+            }
+            if (b.seenTime) {
+              bb -= 1000;
+            }
             // if a TV movie, lose a tie
             if (a.Rating.indexOf("TV") > -1) {
               aa -= .1;
@@ -294,52 +308,62 @@ $(document).ajaxStop(function() {
             }
             // if no score found, put at the bottom
             if (!aa || aa.length == 0) {
-              aa = -1
+              aa -= -100;
             }
             if (!bb || bb.length == 0) {
-              bb = -1
+              bb -= -100;
             }
             // if no score found and MA, put at the very bottom
             if (!aa || aa.length == 0 && a.Rating.indexOf("MA")) {
-              aa = -2
+              aa -= -200;
             }
             if (!bb || bb.length == 0 && b.Rating.indexOf("MA")) {
-              bb = -2
+              bb -= -200;
             }
             return bb - aa;
           });
 
+          var firstNewMovie = true;
+          var firstSeenMovie = true;
           // add movies results to our table
-          table = "<center><br><table width=70%><tr><th colspan=4><center><h3>Movie Description</h3></center></th><th><h3>Record showing</h3></th></tr>";
-          for (i in sortedMovies) {
+          var table = "<center><br><table width=70%><tr><th colspan=4><center><h3>Movie Description</h3></center></th><th><h3>Record showing</h3></th></tr>";
+          for (var i in sortedMovies) {
             movie = sortedMovies[i];
 
+            var movieid = encodeURI(movie.ProgramName + " " + movie.Year);
+            var movieidcss = movieid.replace(/[^_a-zA-Z0-9-]/g, '');
+            var poster = "";
             if (movie.PosterURI) {
               if (movie.PosterURI.indexOf("http://") != 0) {
                 movie.PosterURI = "http://fiostvmercurydata.verizon.net/mercury/cdnprodlandingpad/tmsartwork/db_photos/" + movie.PosterURI;
               }
 
-              movieid = encodeURI(movie.ProgramName + " " + movie.Year);
-              movieidcss = movieid.replace(/[^_a-zA-Z0-9-]/g, '');
               poster = "<img id='" + movieidcss + "' width=104 height=147 src=" + movie.PosterURI + " onError='onImageLoadError(\"" + movieid + "\",\"" + movie.Year + "\",\"" + movie.CastInfo + "\")'>";
             } else {
               poster = "<img id='" + movieidcss + "' width=104 height=147>";
             }
 
             if (movie.isAudienceScore) {
-              movie.RTUserScore = "<font color=#86b889>" + movie.RTUserScore + "</font>"
+              movie.RTUserScore = "<font color=#86b889>" + movie.RTUserScore + "</font>";
             } else {
-              movie.RTUserScore = "<b>" + movie.RTUserScore + "</b>"
+              movie.RTUserScore = "<b>" + movie.RTUserScore + "</b>";
             }
 
             // if the movie has been seen before, gray it out and show the last seen timestamp
-            seenTime = localStorage.getItem(movie.ProgramName + " " + movie.Year);
-            if (seenTime) {
-              seenDate = new Date(0);
-              seenDate.setUTCSeconds(seenTime);
+            if (movie.seenTime) {
+              if (firstSeenMovie) {
+                table += "<tr><td colspan=5><center><b>Seen Movies</b></center></td></tr>";
+                firstSeenMovie = false;
+              }
+              var seenDate = new Date(0);
+              seenDate.setUTCSeconds(movie.seenTime);
               table += "<tr class=seen><td><a class='rt' target=_blank href='" + movie.url + "'>" + poster + "</td><td valign=top><a class='rt' target=_blank href='" + movie.url + "'>" + movie.RTUserScore + "</td>";
               table += "<td valign=top><a class='rt' target=_blank href='" + movie.url + "'>" + movie.ProgramName + " (" + seenDate.getMonth() + "/" + seenDate.getDate() + ")";
             } else {
+              if (firstNewMovie) {
+                table += "<tr><td colspan=5><center><b>New Movies</b></center></td></tr>";
+                firstNewMovie = false;
+              }
               table += "<tr class=new><td><a class='rt' target=_blank href='" + movie.url + "'>" + poster + "</td><td valign=top><a class='rt' target=_blank href='" + movie.url + "'>" + movie.RTUserScore + "</td>";
               table += "<td valign=top><a class='rt' target=_blank href='" + movie.url + "'>" + movie.ProgramName;
             }
@@ -351,7 +375,7 @@ $(document).ajaxStop(function() {
               return a.startdate - b.startdate;
             });
 
-            for (j in movie.showings) {
+            for (var j in movie.showings) {
               if (j > 0) {
                 table += "<br>";
               }
@@ -367,14 +391,21 @@ $(document).ajaxStop(function() {
           $(window).off('scroll');
 
           // replace the body with our table
-          $("body").html("<style>a{color:#cd5151}a.rt{color:#c6c8c9}tr.seen a{color:#767879}tr.seen{color:#767879;}span{display:none;}a:hover span{position: absolute;margin-left:15px;padding-left:5px;margin-right:10px;display:inline;border-left:thin solid #c6c8c9}</style>" + "<script></script>" + table + "</table><br><a id=mark>Mark All Read</a></center><br><br><br><br>");
+          $("body").html("<style>\
+            a{color:#cd5151}\
+            a.rt{color:#c6c8c9}\
+            tr.seen a{color:#767879}\
+            tr.seen{color:#767879;}\
+            span{display:none;}\
+            a:hover span{position: absolute;margin-left:15px;padding-left:5px;margin-right:10px;display:inline;border-left:thin solid #c6c8c9}\
+            </style>" + "<script></script>" + table + "</table><br><a id=mark>Mark All Read</a></center><br><br><br><br>");
 
           checkForDVROverlaps();
 
           // Mark All Read link
           $("#mark").click(function(event) {
-            c = 0;
-            for (i in sortedMovies) {
+            var c = 0;
+            for (var i in sortedMovies) {
               c++;
               localStorage.setItem(sortedMovies[i].ProgramName + " " + sortedMovies[i].Year, new Date().getTime());
             }
@@ -387,9 +418,9 @@ $(document).ajaxStop(function() {
 
           // when showing link is clicked, attempt to record it
           $("a.dvr").click(function() {
-            id = $(this).attr("id")
-            movie = sortedMovies[id.replace(/-.*/, '')];
-            showing = movie.showings[id.replace(/.*-/, '')];
+            var id = $(this).attr("id")
+            var movie = sortedMovies[id.replace(/-.*/, '')];
+            var showing = movie.showings[id.replace(/.*-/, '')];
             $(this).text("Setting...");
             $.get(
               'https://www.verizon.com/fiostv/myservices/Members/Handlers/Schedule.ashx?Action=SetRecording&BASIC_PCATID=&ChannelId=' + showing.ChannelId + '&Duration=' + showing.Duration + '&FiosId=59604308&Page=&PrgmName=' + movie.ProgramName.toUpperCase() + '&SN=' + SN + '&STBID=' + stbin + '&StartTime=' + showing.IntStartTime + '&StationId=' + showing.StationId,
@@ -400,7 +431,7 @@ $(document).ajaxStop(function() {
 
           // keep results page from timing out
           setInterval(function() {
-            $.get("https://www.verizon.com/fiostv/myservices/TVListingHandler.aspx?Action=ChannelSchedule&ChannelId=" + 1 + "&SN=" + SN + "&daycount=" + 1);
+            ActivateSession();
           }, 20000);
 
         } else if (loadFinishedTime == 0) {
@@ -440,7 +471,7 @@ function parseDVRRequest(showing, tag) {
 // listen for when a poster image from RT comes back
 function setPosterListener(event) {
   if (event.data.type && (event.data.type.indexOf("FROM_TS_EXTENSION") == 0)) {
-    movieid = event.data.type.replace(/FROM_TS_EXTENSION/, '').replace(/[^_a-zA-Z0-9-]/g, '');
+    var movieid = event.data.type.replace(/FROM_TS_EXTENSION/, '').replace(/[^_a-zA-Z0-9-]/g, '');
     $("img#" + movieid).attr("src", event.data.posterURI);
   }
 };
@@ -458,12 +489,12 @@ function onImageLoadError(movieid, year, cast) {
 
 function checkForDVROverlaps() {
   $("a.dvr").each(function(index, value) {
-    id = $(this).attr("id")
-    movie = sortedMovies[id.replace(/-.*/, '') - 0];
-    showing = movie.showings[id.replace(/.*-/, '') - 0];
+    var id = $(this).attr("id")
+    var movie = sortedMovies[id.replace(/-.*/, '') - 0];
+    var showing = movie.showings[id.replace(/.*-/, '') - 0];
 
     // check if already recording
-    for (i in dvr) {
+    for (var i in dvr) {
       if (dvr[i].name == movie.ProgramName && +dvr[i].start == +showing.startdate) {
         $(this).css("color", "#51ad51");
         $(this).find("span").text("Already set to record");
@@ -471,7 +502,7 @@ function checkForDVROverlaps() {
       }
     }
 
-    overlap = doesDVROverlap(showing.startdate, showing.Duration);
+    var overlap = doesDVROverlap(showing.startdate, showing.Duration);
 
     // if there is a conflict
     if (overlap) {
