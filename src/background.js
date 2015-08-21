@@ -128,7 +128,7 @@ function parseRTPage(movie, year, cast, url, tabid) {
         score = -1;
       }
     }
-    posterURI = $("div.col-xs-7 img", data).attr("src");
+    posterURI = $("img.posterImage", data).attr("src");
     chrome.tabs.sendMessage(tabid, {
       type: 'FROM_TS_EXTENSION' + movie,
       score: score,

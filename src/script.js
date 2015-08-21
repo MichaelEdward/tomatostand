@@ -159,7 +159,7 @@ function setMovieRTScoreListener(movie, movieid) {
       // remove ourselves as a listener
       event.target.removeEventListener(event.type, arguments.callee);
       outStandingRTCalls--;
-      $("div#status").text("Loaded score for " + movie.ProgramName);
+      $("div#status").text("Loaded score for <i>" + movie.ProgramName + "</i>");
     }
   }
 };
@@ -218,6 +218,7 @@ function getMovies(channel) {
             ChannelId: channel,
             StationId: obj.Schedule[i].StationId,
             Duration: obj.Schedule[i].Duration,
+            FiosId: obj.Schedule[i].FiosId,
             startdate: new Date(obj.Schedule[i].IntStartTime)
           };
           // only add showings in the future
@@ -286,6 +287,21 @@ $(document).ajaxStop(function() {
           sortedMovies.sort(function(a, b) {
             var aa = a.RTUserScore;
             var bb = b.RTUserScore;
+
+            // if no score found, put at the bottom
+            if (!aa || aa.length == 0) {
+              aa -= -100;
+              if (a.Rating.indexOf("MA")) {
+                aa -= -100;
+              }
+            }
+            if (!bb || bb.length == 0) {
+              bb -= -100;
+              if (b.Rating.indexOf("MA")) {
+                bb -= -100;
+              }
+            }
+            // if seen before, then move to the very bottom
             if (a.seenTime) {
               aa -= 1000;
             }
@@ -305,20 +321,6 @@ $(document).ajaxStop(function() {
             }
             if (b.isAudienceScore) {
               bb -= .5;
-            }
-            // if no score found, put at the bottom
-            if (!aa || aa.length == 0) {
-              aa -= -100;
-            }
-            if (!bb || bb.length == 0) {
-              bb -= -100;
-            }
-            // if no score found and MA, put at the very bottom
-            if (!aa || aa.length == 0 && a.Rating.indexOf("MA")) {
-              aa -= -200;
-            }
-            if (!bb || bb.length == 0 && b.Rating.indexOf("MA")) {
-              bb -= -200;
             }
             return bb - aa;
           });
@@ -356,7 +358,7 @@ $(document).ajaxStop(function() {
                 firstSeenMovie = false;
               }
               var seenDate = new Date(0);
-              seenDate.setUTCSeconds(movie.seenTime);
+              seenDate.setUTCSeconds(movie.seenTime / 1000);
               table += "<tr class=seen><td><a class='rt' target=_blank href='" + movie.url + "'>" + poster + "</td><td valign=top><a class='rt' target=_blank href='" + movie.url + "'>" + movie.RTUserScore + "</td>";
               table += "<td valign=top><a class='rt' target=_blank href='" + movie.url + "'>" + movie.ProgramName + " (" + seenDate.getMonth() + "/" + seenDate.getDate() + ")";
             } else {
