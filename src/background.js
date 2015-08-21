@@ -51,9 +51,9 @@ jQuery.expr[":"].Contains = jQuery.expr.createPseudo(function(arg) {
 function parseRTResults(movie, year, cast, url, tabid) {
   return function(data, textStatus, jqXHR) {
     // find the first movie result that matches the correct year
-    firstResult = $("ul#movie_results_ul span.movie_year:contains(" + year + ")", data).parents("li");
+    var firstResult = $("ul#movie_results_ul span.movie_year:contains(" + year + ")", data).parents("li");
     if ((!firstResult || firstResult.length < 1) && cast && cast.length > 4) {
-      actors = cast.split(",");
+      var actors = cast.split(",");
       for (i in actors) {
         firstResult = $("ul#movie_results_ul a[href*='celebrity']:contains('" + actors[i].trim() + "')", data).parents("li");
         if (firstResult && firstResult.length > 0) {
@@ -62,10 +62,10 @@ function parseRTResults(movie, year, cast, url, tabid) {
       }
     }
     if (firstResult && firstResult.length > 0) {
-      scoretag = firstResult.find("span.tMeterScore");
+      var scoretag = firstResult.find("span.tMeterScore");
       if (scoretag && scoretag.length > 0) {
         score = scoretag.text().replace(/%.*/, '');
-        posterURI = firstResult.find("span.movieposter img").attr("src");
+        var posterURI = firstResult.find("span.movieposter img").attr("src");
         chrome.tabs.sendMessage(tabid, {
           type: 'FROM_TS_EXTENSION' + movie,
           score: score,
@@ -103,7 +103,7 @@ function parseRTResults(movie, year, cast, url, tabid) {
       }
     } else {
       // no results found, maybe we're on the actual movie page
-      func = parseRTPage(movie, year, cast, url, tabid);
+      var func = parseRTPage(movie, year, cast, url, tabid);
       func(data, textStatus, jqXHR);
     }
   };
@@ -112,9 +112,9 @@ function parseRTResults(movie, year, cast, url, tabid) {
 // parse the RT movie page
 function parseRTPage(movie, year, cast, url, tabid) {
   return function(data, textStatus, jqXHR) {
-    isAudience = 0;
-    score = -1;
-    scoretag = $("div#all-critics-numbers span.meter-value span", data);
+    var isAudience = 0;
+    var score = -1;
+    var scoretag = $("div#all-critics-numbers span.meter-value span", data);
 
     if (scoretag && scoretag.length > 0) {
       score = scoretag.text().replace(/%.*/, '');
@@ -128,7 +128,7 @@ function parseRTPage(movie, year, cast, url, tabid) {
         score = -1;
       }
     }
-    posterURI = $("img.posterImage", data).attr("src");
+    var posterURI = $("img.posterImage", data).attr("src");
     chrome.tabs.sendMessage(tabid, {
       type: 'FROM_TS_EXTENSION' + movie,
       score: score,

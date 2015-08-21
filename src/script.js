@@ -290,15 +290,15 @@ $(document).ajaxStop(function() {
 
             // if no score found, put at the bottom
             if (!aa || aa.length == 0) {
-              aa -= -100;
-              if (a.Rating.indexOf("MA")) {
-                aa -= -100;
+              aa -= 100;
+              if (!a.Rating || a.Rating.length == 0 || a.Rating.indexOf("MA")) {
+                aa -= 100;
               }
             }
             if (!bb || bb.length == 0) {
-              bb -= -100;
-              if (b.Rating.indexOf("MA")) {
-                bb -= -100;
+              bb -= 100;
+              if (!b.Rating || b.Rating.length == 0 || b.Rating.indexOf("MA")) {
+                bb -= 100;
               }
             }
             // if seen before, then move to the very bottom
