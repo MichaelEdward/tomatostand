@@ -159,7 +159,7 @@ function setMovieRTScoreListener(movie, movieid) {
       // remove ourselves as a listener
       event.target.removeEventListener(event.type, arguments.callee);
       outStandingRTCalls--;
-      $("div#status").text("Loaded score for <i>" + movie.ProgramName + "</i>");
+      $("div#status").html("Loaded score for <i>" + movie.ProgramName + "</i>");
     }
   }
 };
@@ -195,7 +195,7 @@ function addExtraFields(movie) {
       }, '*');
       outStandingRTCalls++;
     }
-    $("div#status").text("Loaded fields for " + movie.ProgramName);
+    $("div#status").html("Loaded fields for <i>" + movie.ProgramName + "</i>");
   };
 };
 
@@ -328,7 +328,7 @@ $(document).ajaxStop(function() {
           var firstNewMovie = true;
           var firstSeenMovie = true;
           // add movies results to our table
-          var table = "<center><br><table width=70%><tr><th colspan=4><center><h3>Movie Description</h3></center></th><th><h3>Record showing</h3></th></tr>";
+          var table = "<center><br><table width=70%><tr><th colspan=4><center><h3>Movie Description</h3></center></th><th><h3 style='text-align:left'>Record showing</h3></th></tr>";
           for (var i in sortedMovies) {
             movie = sortedMovies[i];
 
@@ -354,7 +354,7 @@ $(document).ajaxStop(function() {
             // if the movie has been seen before, gray it out and show the last seen timestamp
             if (movie.seenTime) {
               if (firstSeenMovie) {
-                table += "<tr><td colspan=5><center><b>Seen Movies</b></center></td></tr>";
+                table += "<tr><td colspan=5><br><a id=mark>Mark All Read</a><br><br><b>Seen Movies</b></center></td></tr>";
                 firstSeenMovie = false;
               }
               var seenDate = new Date(0);
